@@ -7,16 +7,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  description String
-  User        User?   @relation(fields: [userId], references: [id])
-  userId      String? @db.ObjectId
+model User {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  email          String
+  isAdmin        Boolean
+  preferences    Json?
+  Post           Post[]
+  UserPreference UserPreference?
 }
 
-model User {
-  id    String @id @default(auto()) @map("_id") @db.ObjectId
-  name  String
-  posts Post[]
+model UserPreference {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  emailUpdates Boolean
+  user         User    @relation(fields: [userId], references: [id])
+  userId       String  @unique @db.ObjectId
+}
+
+model Post {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  rating      Float
+  author      User       @relation(fields: [authorId], references: [id])
+  authorId    String     @db.ObjectId
+  categoryIDs String[]   @db.ObjectId
+  categories  Category[] @relation(fields: [categoryIDs], references: [id])
+}
+
+model Category {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  postIDs String[] @db.ObjectId
+  posts   Post[]   @relation(fields: [postIDs], references: [id])
 }
